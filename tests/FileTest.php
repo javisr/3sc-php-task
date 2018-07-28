@@ -94,9 +94,11 @@ class FileTest extends TestCase {
     /** @test */
     public function it_returns_expected_path()
     {
-        $this->file->setName('cat.gif');
-        $parentDir = (new Directory())->setPath('/my/fake/path/');
+        $parentDir = (new Directory())
+            ->setPath('/my/fake/path')
+            ->setName('folderName');
+
         $this->file->setParentDirectory($parentDir);
-        $this->assertEquals('/my/fake/path/cat.gif', $this->file->getPath());
+        $this->assertEquals('/my/fake/path/folderName', $this->file->getPath());
     }
 }

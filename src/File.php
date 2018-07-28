@@ -132,6 +132,6 @@ class File implements FileInterface
      */
     public function getPath()
     {
-        return $this->parentDirectory->getPath() . $this->name;
+        return $this->parentDirectory->getPath() . '/' . $this->parentDirectory->getName() ;
     }
 }
