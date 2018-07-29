@@ -7,7 +7,7 @@ use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
 
-class OSXFileSystemTest extends TestCase
+class FileSystemTest extends TestCase
 {
 
     /**
@@ -23,7 +23,7 @@ class OSXFileSystemTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->fs = new OSXFileSystem();
+        $this->fs = new FileSystem();
 
         $this->createTmpFolder();
     }

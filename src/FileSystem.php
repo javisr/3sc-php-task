@@ -9,8 +9,9 @@ use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
 
-class OSXFileSystem implements FileSystemInterface
+class FileSystem implements FileSystemInterface
 {
+
 
     /**
      * @param FileInterface $file
