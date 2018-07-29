@@ -7,7 +7,7 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new \Tsc\CatStorageSystem\Commands\SayHelloCommand());
+$application->add(new \Tsc\CatStorageSystem\Commands\RenameFileCommand());
 
 try {
     $application->run();
