@@ -3,6 +3,8 @@
 namespace Tsc\CatStorageSystem;
 
 use \SplFileInfo;
+use Tsc\CatStorageSystem\Factories\DirectoryFactory;
+use Tsc\CatStorageSystem\Factories\FileFactory;
 
 class OSXFileSystem implements FileSystemInterface
 {
@@ -205,7 +207,7 @@ class OSXFileSystem implements FileSystemInterface
 
         foreach ($directoryIterator as $item) {
             if ($item->isDir() && ! $item->isDot()) {
-                $dirs[] = (new Directory())
+                $dirs[] = DirectoryFactory::create()
                     ->setName($item->getFilename())
                     ->setPath($item->getPath())
                     ->setCreatedTime((new \DateTime())->setTimestamp($item->getCTime()));
@@ -227,7 +229,7 @@ class OSXFileSystem implements FileSystemInterface
 
         foreach ($directoryIterator as $item) {
             if ($item->isDir() && ! $item->isDot()) {
-                $files[] = (new File())
+                $files[] = FileFactory::create()
                     ->setParentDirectory($directory)
                     ->setName($item->getFilename())
                     ->setSize($item->getSize())

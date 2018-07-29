@@ -71,7 +71,7 @@ class File implements FileInterface
     }
 
     /**
-     * @return DateTime
+     * @return DateTimeInterface
      */
     public function getCreatedTime()
     {
