@@ -3,6 +3,9 @@
 namespace Tsc\CatStorageSystem;
 
 use \SplFileInfo;
+use Tsc\CatStorageSystem\Contracts\FileInterface;
+use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
+use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
 
