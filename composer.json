@@ -5,7 +5,9 @@
     "require-dev": {
         "phpunit/phpunit": "^6.4"
     },
-    "require": {},
+    "require": {
+        "symfony/console": "^4.1"
+    },
     "autoload": {
         "psr-4": {
             "Tsc\\CatStorageSystem\\": "src/"
