@@ -3,6 +3,8 @@
 namespace Tsc\CatStorageSystem;
 
 use PHPUnit\Framework\TestCase;
+use Tsc\CatStorageSystem\Factories\DirectoryFactory;
+use Tsc\CatStorageSystem\Factories\FileFactory;
 
 class OSXFileSystemTest extends TestCase
 {
@@ -29,9 +31,10 @@ class OSXFileSystemTest extends TestCase
     /** @test */
     public function it_can_create_a_file()
     {
-        $file = (new File())
+        $file = FileFactory::create()
             ->setName('new-cat.gif');
-        $dir = (new Directory())
+
+        $dir = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('tmp');
 
@@ -45,9 +48,9 @@ class OSXFileSystemTest extends TestCase
     public function it_can_update_a_file()
     {
         $file = $this->fs->createFile(
-            (new File())
+            FileFactory::create()
                 ->setName('new-cat.gif'),
-            (new Directory())
+            DirectoryFactory::create()
                 ->setPath($this->testFolder)
                 ->setName('tmp'));
 
@@ -64,9 +67,9 @@ class OSXFileSystemTest extends TestCase
     public function it_can_rename_a_file()
     {
         $file = $this->fs->createFile(
-            (new File())
+            FileFactory::create()
                 ->setName('new-cat.gif'),
-            (new Directory())
+            DirectoryFactory::create()
                 ->setPath($this->testFolder)
                 ->setName('tmp'));
 
@@ -81,9 +84,9 @@ class OSXFileSystemTest extends TestCase
     public function it_can_delete_a_file()
     {
         $file = $this->fs->createFile(
-            (new File())
+            FileFactory::create()
                 ->setName('new-cat.gif'),
-            (new Directory())
+            DirectoryFactory::create()
                 ->setPath($this->testFolder)
                 ->setName('tmp'));
 
@@ -96,7 +99,7 @@ class OSXFileSystemTest extends TestCase
     /** @test */
     public function it_can_create_a_root_directory()
     {
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
@@ -111,11 +114,11 @@ class OSXFileSystemTest extends TestCase
     public function it_can_create_a_directory()
     {
         mkdir($this->testFolder . '/root');
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
-        $child = (new Directory())
+        $child = DirectoryFactory::create()
             ->setName('child');
 
         $this->assertDirectoryNotExists($this->testFolder . '/root/child');
@@ -129,7 +132,7 @@ class OSXFileSystemTest extends TestCase
     /** @test */
     public function it_can_delete_a_directory()
     {
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('removable');
         $this->fs->createRootDirectory($root);
@@ -143,7 +146,7 @@ class OSXFileSystemTest extends TestCase
     /** @test */
     public function it_can_rename_a_directory()
     {
-        $dir = (new Directory())
+        $dir = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('my_dir');
         $this->fs->createRootDirectory($dir);
@@ -167,7 +170,7 @@ class OSXFileSystemTest extends TestCase
         mkdir($this->testFolder . '/root/dir_c');
         touch($this->testFolder . '/root/fileA');
 
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
@@ -184,7 +187,7 @@ class OSXFileSystemTest extends TestCase
         touch($this->testFolder . '/root/fileA');
         touch($this->testFolder . '/root/fileB');
 
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
@@ -201,7 +204,7 @@ class OSXFileSystemTest extends TestCase
         mkdir($this->testFolder . '/root/dir_a/dir_b');
         $size += (new \SplFileObject($this->testFolder . '/root/dir_a/dir_b/fileC.txt', 'w'))->fwrite('aaa');
 
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
@@ -218,7 +221,7 @@ class OSXFileSystemTest extends TestCase
         mkdir($this->testFolder . '/root/dir_c/other_dir');
         touch($this->testFolder . '/root/fileA');
 
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
@@ -236,7 +239,7 @@ class OSXFileSystemTest extends TestCase
         touch($this->testFolder . '/root/fileB');
 
 
-        $root = (new Directory())
+        $root = DirectoryFactory::create()
             ->setPath($this->testFolder)
             ->setName('root');
 
