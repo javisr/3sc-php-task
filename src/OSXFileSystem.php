@@ -231,7 +231,7 @@ class OSXFileSystem implements FileSystemInterface
         $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
 
         foreach ($directoryIterator as $item) {
-            if ($item->isDir() && ! $item->isDot()) {
+            if (!$item->isDir() && ! $item->isDot()) {
                 $files[] = FileFactory::create()
                     ->setParentDirectory($directory)
                     ->setName($item->getFilename())

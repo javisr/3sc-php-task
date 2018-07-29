@@ -8,6 +8,7 @@ use Symfony\Component\Console\Application;
 $application = new Application();
 
 $application->add(new \Tsc\CatStorageSystem\Commands\RenameFileCommand());
+$application->add(new \Tsc\CatStorageSystem\Commands\ListFileCommand());
 
 try {
     $application->run();
