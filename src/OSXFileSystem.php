@@ -149,13 +149,14 @@ class OSXFileSystem implements FileSystemInterface
     public function getDirectoryCount(DirectoryInterface $directory)
     {
         $dirCount = 0;
-        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
 
-        foreach ($directoryIterator as $item) {
+        $fn = function ($item) use (&$dirCount, $directory){
             if ($item->isDir() && ! $item->isDot()) {
                 $dirCount++;
             }
-        }
+        };
+
+        $this->runDirectory($directory, $fn);
 
         return $dirCount;
     }
@@ -168,13 +169,14 @@ class OSXFileSystem implements FileSystemInterface
     public function getFileCount(DirectoryInterface $directory)
     {
         $fileCount = 0;
-        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
 
-        foreach ($directoryIterator as $item) {
+        $fn = function ($item) use (&$fileCount, $directory){
             if ($item->isFile()) {
                 $fileCount++;
             }
-        }
+        };
+
+        $this->runDirectory($directory, $fn);
 
         return $fileCount;
     }
@@ -188,8 +190,7 @@ class OSXFileSystem implements FileSystemInterface
     {
         $size = 0;
         $path = $directory->getPath() . '/' . $directory->getName();
-        $rdi = new \RecursiveDirectoryIterator($path);
-        $iterator = new \RecursiveIteratorIterator($rdi);
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
         foreach ($iterator as $info) {
             if ($info->isFile()) {
                 $size += $info->getSize();
@@ -206,16 +207,17 @@ class OSXFileSystem implements FileSystemInterface
     public function getDirectories(DirectoryInterface $directory)
     {
         $dirs = [];
-        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
 
-        foreach ($directoryIterator as $item) {
+        $fn = function ($item) use (&$dirs, $directory){
             if ($item->isDir() && ! $item->isDot()) {
                 $dirs[] = DirectoryFactory::create()
                     ->setName($item->getFilename())
                     ->setPath($item->getPath())
                     ->setCreatedTime((new \DateTime())->setTimestamp($item->getCTime()));
             }
-        }
+        };
+
+        $this->runDirectory($directory, $fn);
 
         return $dirs;
     }
@@ -228,20 +230,28 @@ class OSXFileSystem implements FileSystemInterface
     public function getFiles(DirectoryInterface $directory)
     {
         $files = [];
-        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
 
-        foreach ($directoryIterator as $item) {
-            if ($item->isDir() && ! $item->isDot()) {
+        $fn = function ($item) use (&$files, $directory){
+            if (!$item->isDir() && ! $item->isDot()) {
                 $files[] = FileFactory::create()
                     ->setParentDirectory($directory)
                     ->setName($item->getFilename())
                     ->setSize($item->getSize())
                     ->setCreatedTime((new \DateTime())->setTimestamp($item->getCTime()));
             }
-        }
+        };
+
+        $this->runDirectory($directory, $fn);
 
         return $files;
     }
 
+    protected function runDirectory($directory, $fn){
+        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
+
+       foreach ($directoryIterator as $item) {
+            $fn($item);
+        }
+    }
 
 }
