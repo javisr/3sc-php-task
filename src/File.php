@@ -4,6 +4,8 @@ namespace Tsc\CatStorageSystem;
 
 
 use DateTimeInterface;
+use Tsc\CatStorageSystem\Contracts\FileInterface;
+use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
 
 class File implements FileInterface
 {

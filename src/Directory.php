@@ -4,6 +4,7 @@ namespace Tsc\CatStorageSystem;
 
 
 use DateTimeInterface;
+use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
 
 class Directory implements DirectoryInterface
 {

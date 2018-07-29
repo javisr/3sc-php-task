@@ -10,7 +10,7 @@ namespace Tsc\CatStorageSystem\Factories;
 
 
 use Tsc\CatStorageSystem\Directory;
-use Tsc\CatStorageSystem\DirectoryInterface;
+use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
 
 class DirectoryFactory
 {

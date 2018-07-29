@@ -3,7 +3,7 @@
 namespace Tsc\CatStorageSystem\Factories;
 
 use Tsc\CatStorageSystem\File;
-use Tsc\CatStorageSystem\FileInterface;
+use Tsc\CatStorageSystem\Contracts\FileInterface;
 
 class FileFactory
 {

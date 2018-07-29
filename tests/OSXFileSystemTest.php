@@ -3,6 +3,7 @@
 namespace Tsc\CatStorageSystem;
 
 use PHPUnit\Framework\TestCase;
+use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
 
