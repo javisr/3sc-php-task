@@ -28,7 +28,7 @@ class RenameFileCommand extends Command
         $oldName = $input->getArgument('old_name');
         $newName = $input->getArgument('new_name');
 
-        $root = DirectoryFactory::create()->setPath('./images');
+        $root = DirectoryFactory::create()->setPath('.')->setName('images');
         $file = FileFactory::create()
             ->setParentDirectory($root)
             ->setName($oldName);

@@ -18,7 +18,7 @@ class Directory implements DirectoryInterface
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -28,7 +28,7 @@ class Directory implements DirectoryInterface
      *
      * @return $this
      */
-    public function setName($name)
+    public function setName($name): DirectoryInterface
     {
         $this->name = $name;
         return $this;
@@ -37,9 +37,9 @@ class Directory implements DirectoryInterface
     /**
      * @return DateTimeInterface
      */
-    public function getCreatedTime()
+    public function getCreatedTime(): DateTimeInterface
     {
-        return  $this->createdTime;
+        return $this->createdTime;
     }
 
     /**
@@ -47,7 +47,7 @@ class Directory implements DirectoryInterface
      *
      * @return $this
      */
-    public function setCreatedTime(DateTimeInterface $created)
+    public function setCreatedTime(DateTimeInterface $created): DirectoryInterface
     {
         $this->createdTime = $created;
         return $this;
@@ -56,7 +56,7 @@ class Directory implements DirectoryInterface
     /**
      * @return string
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -66,7 +66,7 @@ class Directory implements DirectoryInterface
      *
      * @return $this
      */
-    public function setPath($path)
+    public function setPath($path): DirectoryInterface
     {
         $this->path = $path;
         return $this;

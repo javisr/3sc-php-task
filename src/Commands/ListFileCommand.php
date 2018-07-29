@@ -24,8 +24,8 @@ class ListFileCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dir = $input->getArgument('dir_name') ? './images/' . $input->getArgument('dir_name') : './images';
-        $root = DirectoryFactory::create()->setPath($dir);
+        $dirName = $input->getArgument('dir_name') ?   $input->getArgument('dir_name') : '';
+        $root = DirectoryFactory::create()->setPath('./images')->setName($dirName);
 
         $fs = FSFactory::create();
 
@@ -35,7 +35,7 @@ class ListFileCommand extends Command
         }
 
         if($fs->getFileCount($root) === 0){
-            $output->writeln('Not files found inside ' . $dir);
+            $output->writeln('Not files found inside ' . $dirName);
         }
     }
 }
