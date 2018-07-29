@@ -195,11 +195,11 @@ class OSXFileSystemTest extends TestCase
     public function it_returns_the_size_of_a_complete_directory()
     {
         mkdir($this->testFolder . '/root');
-        $size = (new \SplFileObject($this->testFolder . "/root/fileA.txt", "w"))->fwrite('aaa');
+        $size = (new \SplFileObject($this->testFolder . '/root/fileA.txt', 'w'))->fwrite('aaa');
         mkdir($this->testFolder . '/root/dir_a');
-        $size += (new \SplFileObject($this->testFolder . "/root/dir_a/fileB.txt", "w"))->fwrite('aaa');
+        $size += (new \SplFileObject($this->testFolder . '/root/dir_a/fileB.txt', 'w'))->fwrite('aaa');
         mkdir($this->testFolder . '/root/dir_a/dir_b');
-        $size += (new \SplFileObject($this->testFolder . "/root/dir_a/dir_b/fileC.txt", "w"))->fwrite('aaa');
+        $size += (new \SplFileObject($this->testFolder . '/root/dir_a/dir_b/fileC.txt', 'w'))->fwrite('aaa');
 
         $root = (new Directory())
             ->setPath($this->testFolder)
