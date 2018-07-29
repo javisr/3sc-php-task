@@ -18,7 +18,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return FileInterface
      */
-    public function createFile(FileInterface $file, DirectoryInterface $parent)
+    public function createFile(FileInterface $file, DirectoryInterface $parent): FileInterface
     {
         $filePath = $parent->getPath() . '/' . $parent->getName() . '/' . $file->getName();
         touch($filePath);
@@ -40,7 +40,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return FileInterface
      */
-    public function updateFile(FileInterface $file)
+    public function updateFile(FileInterface $file): FileInterface
     {
         $filePath = $file->getPath() . '/' . $file->getName();
         touch($filePath, $file->getModifiedTime()->getTimestamp());
@@ -55,7 +55,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return FileInterface
      */
-    public function renameFile(FileInterface $file, $newName)
+    public function renameFile(FileInterface $file, $newName): FileInterface
     {
         rename($file->getPath() . '/' . $file->getName(), $file->getPath() . '/' . $newName);
         //  TODO: throw an exception when rename fails
@@ -70,7 +70,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return bool
      */
-    public function deleteFile(FileInterface $file)
+    public function deleteFile(FileInterface $file): bool
     {
         return unlink($file->getPath() . '/' . $file->getName());
         //  TODO: throw an exception when unlink fails
@@ -81,7 +81,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return DirectoryInterface
      */
-    public function createRootDirectory(DirectoryInterface $directory)
+    public function createRootDirectory(DirectoryInterface $directory): DirectoryInterface
     {
         $dirPath = $directory->getPath() . '/' . $directory->getName();
 
@@ -97,9 +97,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return DirectoryInterface
      */
-    public function createDirectory(
-        DirectoryInterface $directory, DirectoryInterface $parent
-    )
+    public function createDirectory( DirectoryInterface $directory, DirectoryInterface $parent): DirectoryInterface
     {
         $parentPath = $parent->getPath() . '/' . $parent->getName();
         //TODO?  $directory->getPath() if it has a relative path, create all subfolders
@@ -115,7 +113,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return bool
      */
-    public function deleteDirectory(DirectoryInterface $directory)
+    public function deleteDirectory(DirectoryInterface $directory): bool
     {
         $dir = $directory->getPath() . '/' . $directory->getName();
         //  TODO: throw an exception when rmdir fails
@@ -128,7 +126,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return DirectoryInterface
      */
-    public function renameDirectory(DirectoryInterface $directory, $newName)
+    public function renameDirectory(DirectoryInterface $directory, $newName): DirectoryInterface
     {
         $old = $directory->getPath() . '/' . $directory->getName();
         $new = $directory->getPath() . '/' . $newName;
@@ -146,7 +144,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return int
      */
-    public function getDirectoryCount(DirectoryInterface $directory)
+    public function getDirectoryCount(DirectoryInterface $directory): int
     {
         $dirCount = 0;
 
@@ -166,7 +164,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return int
      */
-    public function getFileCount(DirectoryInterface $directory)
+    public function getFileCount(DirectoryInterface $directory): int
     {
         $fileCount = 0;
 
@@ -186,7 +184,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return int
      */
-    public function getDirectorySize(DirectoryInterface $directory)
+    public function getDirectorySize(DirectoryInterface $directory): int
     {
         $size = 0;
         $path = $directory->getPath() . '/' . $directory->getName();
@@ -204,7 +202,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return DirectoryInterface[]
      */
-    public function getDirectories(DirectoryInterface $directory)
+    public function getDirectories(DirectoryInterface $directory): array
     {
         $dirs = [];
 
@@ -227,7 +225,7 @@ class OSXFileSystem implements FileSystemInterface
      *
      * @return FileInterface[]
      */
-    public function getFiles(DirectoryInterface $directory)
+    public function getFiles(DirectoryInterface $directory): array
     {
         $files = [];
 
