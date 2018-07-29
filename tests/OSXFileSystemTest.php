@@ -236,6 +236,7 @@ class OSXFileSystemTest extends TestCase
         mkdir($this->testFolder . '/root');
         mkdir($this->testFolder . '/root/dir_a');
         mkdir($this->testFolder . '/root/dir_b');
+        mkdir($this->testFolder . '/root/dir_c');
         touch($this->testFolder . '/root/fileA');
         touch($this->testFolder . '/root/fileB');
 
