@@ -5,208 +5,29 @@ namespace Tsc\CatStorageSystem;
 use Tsc\CatStorageSystem\Contracts\FileInterface;
 use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
 use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsCreatorInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDeleteInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirCounterInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirFileCounterInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirFileListInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirListInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirSizeInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsFileCreatorInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsRenameInterface;
-use Tsc\CatStorageSystem\FSUtils\Contracts\FsUpdateInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDriverInterface;
 
 class FileSystem implements FileSystemInterface
 {
     /**
-     * @var FsFileCreatorInterface
+     * @var FsDriverInterface
      */
-    protected $fileCreator;
+    protected $driver;
 
-    /**
-     * @var FsUpdateInterface
-     */
-    protected $fileUpdater;
-
-    /**
-     * @var FsRenameInterface
-     */
-    protected $fileRenamer;
-
-    /**
-     * @var FsCreatorInterface
-     */
-    protected $dirCreator;
-
-    /**
-     * @var FsDeleteInterface
-     */
-    protected $fileDeleter;
-
-    /**
-     * @var FsDeleteInterface
-     */
-    protected $dirDeleter;
-
-    /**
-     * @var FsRenameInterface
-     */
-    protected $dirRenamer;
-
-    /**
-     * @var FsDirSizeInterface
-     */
-    protected $dirSizeCalculator;
-
-    /**
-     * @var FsDirFileCounterInterface
-     */
-    protected $dirFileCounter;
-
-    /**
-     * @var FsDirCounterInterface
-     */
-    protected $dirCounter;
-
-    /**
-     * @var FsDirListInterface
-     */
-    protected $dirListHelper;
-
-    /**
-     * @var FsDirFileListInterface
-     */
-    protected $dirFileListHelper;
-
-    /**
-     * @param $fileCreator
-     * @return $this
-     */
-    public function setFileCreator($fileCreator)
+    public function __construct(FsDriverInterface $driver)
     {
-        $this->fileCreator = $fileCreator;
-        return $this;
-    }
-
-    /**
-     * @param $fileUpdater
-     * @return $this
-     */
-    public function setFileUpdater($fileUpdater)
-    {
-        $this->fileUpdater = $fileUpdater;
-        return $this;
-    }
-
-    /**
-     * @param $fileRenamer
-     * @return $this
-     */
-    public function setFileRenamer($fileRenamer)
-    {
-        $this->fileRenamer = $fileRenamer;
-        return $this;
-    }
-
-    /**
-     * @param $fileDeleter
-     * @return $this
-     */
-    public function setFileDeleter($fileDeleter)
-    {
-        $this->fileDeleter = $fileDeleter;
-        return $this;
-    }
-
-    /**
-     * @param $dirDeleter
-     * @return $this
-     */
-    public function setDirDeleter($dirDeleter)
-    {
-        $this->dirDeleter = $dirDeleter;
-        return $this;
-    }
-
-    /**
-     * @param $dirRenamer
-     * @return $this
-     */
-    public function setDirRenamer($dirRenamer)
-    {
-        $this->dirRenamer = $dirRenamer;
-        return $this;
-    }
-
-    /**
-     * @param FsCreatorInterface $dirCreator
-     * @return FileSystem
-     */
-    public function setDirCreator(FsCreatorInterface $dirCreator)
-    {
-        $this->dirCreator = $dirCreator;
-        return $this;
-    }
-
-    /**
-     * @param FsDirSizeInterface $dirSizeCalculator
-     * @return FileSystem
-     */
-    public function setDirSizeCalculator(FsDirSizeInterface $dirSizeCalculator)
-    {
-        $this->dirSizeCalculator = $dirSizeCalculator;
-        return $this;
-    }
-
-    /**
-     * @param FsDirFileCounterInterface $dirFileCounter
-     * @return FileSystem
-     */
-    public function setDirFileCounter(FsDirFileCounterInterface $dirFileCounter)
-    {
-        $this->dirFileCounter = $dirFileCounter;
-        return $this;
-    }
-
-    /**
-     * @param FsDirListInterface $dirListHelper
-     * @return FileSystem
-     */
-    public function setDirListHelper(FsDirListInterface $dirListHelper)
-    {
-        $this->dirListHelper = $dirListHelper;
-        return $this;
-    }
-
-    /**
-     * @param FsDirFileListInterface $dirFileListHelper
-     * @return FileSystem
-     */
-    public function setDirFileListHelper(FsDirFileListInterface $dirFileListHelper)
-    {
-        $this->dirFileListHelper = $dirFileListHelper;
-        return $this;
-    }
-
-    /**
-     * @param FsDirCounterInterface $dirCounter
-     * @return FileSystem
-     */
-    public function setDirCounter(FsDirCounterInterface $dirCounter)
-    {
-        $this->dirCounter = $dirCounter;
-        return $this;
+        $this->driver = $driver;
     }
 
     /**
      * @param FileInterface $file
      * @param DirectoryInterface $parent
-     *
      * @return FileInterface
+     * @throws \Exception
      */
     public function createFile(FileInterface $file, DirectoryInterface $parent): FileInterface
     {
-        $fileInfo = $this->fileCreator->create($file, $parent);
+        $fileInfo = $this->driver->createFile($file, $parent);
         return $file
             ->setParentDirectory($parent)
             ->setSize($fileInfo->getSize())
@@ -223,9 +44,7 @@ class FileSystem implements FileSystemInterface
      */
     public function updateFile(FileInterface $file): FileInterface
     {
-        $filePath = $file->getPath() . '/' . $file->getName();
-        $this->fileUpdater->update($filePath);
-        clearstatcache();
+        $this->driver->updateFile($file);
         return $file;
     }
 
@@ -237,7 +56,7 @@ class FileSystem implements FileSystemInterface
      */
     public function renameFile(FileInterface $file, $newName): FileInterface
     {
-        $this->fileRenamer->rename($file, $newName);
+        $this->driver->renameFile($file, $newName);
         $file->setName($newName);
         return $file;
     }
@@ -249,17 +68,18 @@ class FileSystem implements FileSystemInterface
      */
     public function deleteFile(FileInterface $file): bool
     {
-        return $this->fileDeleter->delete($file);
+        return $this->driver->deleteFile($file);
     }
 
     /**
      * @param DirectoryInterface $directory
      *
      * @return DirectoryInterface
+     * @throws \Exception
      */
     public function createRootDirectory(DirectoryInterface $directory): DirectoryInterface
     {
-        $this->dirCreator->create($directory);
+        $this->driver->createRootDirectory($directory);
         return $directory;
     }
 
@@ -268,10 +88,11 @@ class FileSystem implements FileSystemInterface
      * @param DirectoryInterface $parent
      *
      * @return DirectoryInterface
+     * @throws \Exception
      */
     public function createDirectory(DirectoryInterface $directory, DirectoryInterface $parent): DirectoryInterface
     {
-        $this->dirCreator->create($directory, $parent);
+        $this->driver->createDirectory($directory, $parent);
         return $directory;
     }
 
@@ -282,7 +103,7 @@ class FileSystem implements FileSystemInterface
      */
     public function deleteDirectory(DirectoryInterface $directory): bool
     {
-        return $this->dirDeleter->delete($directory);
+        return $this->driver->deleteDirectory($directory);
     }
 
     /**
@@ -293,7 +114,7 @@ class FileSystem implements FileSystemInterface
      */
     public function renameDirectory(DirectoryInterface $directory, $newName): DirectoryInterface
     {
-        $this->fileRenamer->rename($directory, $newName);
+        $this->driver->renameDirectory($directory, $newName);
         $directory->setName($newName);
         return $directory;
     }
@@ -305,7 +126,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectoryCount(DirectoryInterface $directory): int
     {
-        return $this->dirCounter->calculate($directory);
+        return $this->driver->countDirectories($directory);
     }
 
     /**
@@ -315,7 +136,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getFileCount(DirectoryInterface $directory): int
     {
-        return $this->dirFileCounter->calculate($directory);
+        return $this->driver->countFiles($directory);
     }
 
     /**
@@ -325,8 +146,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectorySize(DirectoryInterface $directory): int
     {
-        $path = $directory->getPath() . '/' . $directory->getName();
-        return $this->dirSizeCalculator->calculate($path);
+        return $this->driver->directorySize($directory);
     }
 
     /**
@@ -336,7 +156,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectories(DirectoryInterface $directory): array
     {
-        return $this->dirListHelper->list($directory);
+        return $this->driver->listDirectories($directory);
     }
 
     /**
@@ -346,6 +166,6 @@ class FileSystem implements FileSystemInterface
      */
     public function getFiles(DirectoryInterface $directory): array
     {
-        return $this->dirFileListHelper->list($directory);
+        return $this->driver->listFiles($directory);
     }
 }
