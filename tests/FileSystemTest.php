@@ -6,12 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
+use Tsc\CatStorageSystem\FSUtils\DirCreator;
+use Tsc\CatStorageSystem\FSUtils\DirDelete;
+use Tsc\CatStorageSystem\FSUtils\FileCreator;
+use Tsc\CatStorageSystem\FSUtils\FileDelete;
+use Tsc\CatStorageSystem\FSUtils\FileRename;
+use Tsc\CatStorageSystem\FSUtils\FileUpdate;
 
 class FileSystemTest extends TestCase
 {
 
     /**
-     * @var FileSystemInterface
+     * @var FileSystem
      */
     private $fs;
 
@@ -23,7 +29,16 @@ class FileSystemTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->fs = new FileSystem();
+        $this->fs = (new FileSystem())
+            ->setFileCreator(new FileCreator())
+            ->setFileUpdater(new FileUpdate())
+            ->setFileRenamer(new FileRename())
+            ->setFileDeleter(new FileDelete())
+            ->setDirCreator(new DirCreator())
+            ->setDirDeleter(new DirDelete())
+            ->setDirDirRenamer(new FileRename())
+            ;
+
 
         $this->createTmpFolder();
     }
