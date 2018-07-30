@@ -10,10 +10,12 @@ use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
 use Tsc\CatStorageSystem\Factories\FSFactory;
 use Symfony\Component\Console\Input\InputArgument;
+use Tsc\CatStorageSystem\FSUtils\FileCreator;
+use Tsc\CatStorageSystem\FSUtils\FileRename;
+use Tsc\CatStorageSystem\FSUtils\FileUpdate;
 
-class RenameFileCommand extends Command
+class RenameFileCommand extends AbstractCommand
 {
-
     protected function configure()
     {
         $this
@@ -28,12 +30,11 @@ class RenameFileCommand extends Command
         $oldName = $input->getArgument('old_name');
         $newName = $input->getArgument('new_name');
 
-        $root = DirectoryFactory::create()->setPath('.')->setName('images');
         $file = FileFactory::create()
-            ->setParentDirectory($root)
+            ->setParentDirectory($this->root)
             ->setName($oldName);
 
-        FSFactory::create()->renameFile($file, $newName);
+        $this->fs->renameFile($file, $newName);
 
         $output->writeln($oldName .' is now renamed to ' . $file->getName());
     }

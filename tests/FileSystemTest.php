@@ -3,15 +3,16 @@
 namespace Tsc\CatStorageSystem;
 
 use PHPUnit\Framework\TestCase;
-use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
+use Tsc\CatStorageSystem\FSUtils\OSXDriver;
 
-class OSXFileSystemTest extends TestCase
+
+class FileSystemTest extends TestCase
 {
 
     /**
-     * @var FileSystemInterface
+     * @var FileSystem
      */
     private $fs;
 
@@ -23,7 +24,7 @@ class OSXFileSystemTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->fs = new OSXFileSystem();
+        $this->fs = (new FileSystem(new OSXDriver()));
 
         $this->createTmpFolder();
     }
