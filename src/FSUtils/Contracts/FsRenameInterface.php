@@ -5,5 +5,5 @@ use \SplFileInfo;
 
 interface FsRenameInterface
 {
-    public function rename(string $oldname, string $newname): SplFileInfo;
+    public function rename($file, string $newname): SplFileInfo;
 }

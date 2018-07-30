@@ -5,17 +5,21 @@ namespace Tsc\CatStorageSystem;
 use Tsc\CatStorageSystem\Contracts\FileInterface;
 use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
 use Tsc\CatStorageSystem\Contracts\FileSystemInterface;
-use Tsc\CatStorageSystem\Factories\DirectoryFactory;
-use Tsc\CatStorageSystem\Factories\FileFactory;
 use Tsc\CatStorageSystem\FSUtils\Contracts\FsCreatorInterface;
 use Tsc\CatStorageSystem\FSUtils\Contracts\FsDeleteInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirCounterInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirFileCounterInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirFileListInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirListInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDirSizeInterface;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsFileCreatorInterface;
 use Tsc\CatStorageSystem\FSUtils\Contracts\FsRenameInterface;
 use Tsc\CatStorageSystem\FSUtils\Contracts\FsUpdateInterface;
 
 class FileSystem implements FileSystemInterface
 {
     /**
-     * @var FsCreatorInterface
+     * @var FsFileCreatorInterface
      */
     protected $fileCreator;
 
@@ -48,6 +52,31 @@ class FileSystem implements FileSystemInterface
      * @var FsRenameInterface
      */
     protected $dirRenamer;
+
+    /**
+     * @var FsDirSizeInterface
+     */
+    protected $dirSizeCalculator;
+
+    /**
+     * @var FsDirFileCounterInterface
+     */
+    protected $dirFileCounter;
+
+    /**
+     * @var FsDirCounterInterface
+     */
+    protected $dirCounter;
+
+    /**
+     * @var FsDirListInterface
+     */
+    protected $dirListHelper;
+
+    /**
+     * @var FsDirFileListInterface
+     */
+    protected $dirFileListHelper;
 
     /**
      * @param $fileCreator
@@ -89,7 +118,6 @@ class FileSystem implements FileSystemInterface
         return $this;
     }
 
-
     /**
      * @param $dirDeleter
      * @return $this
@@ -100,12 +128,11 @@ class FileSystem implements FileSystemInterface
         return $this;
     }
 
-
     /**
      * @param $dirRenamer
      * @return $this
      */
-    public function setDirDirRenamer($dirRenamer)
+    public function setDirRenamer($dirRenamer)
     {
         $this->dirRenamer = $dirRenamer;
         return $this;
@@ -121,6 +148,55 @@ class FileSystem implements FileSystemInterface
         return $this;
     }
 
+    /**
+     * @param FsDirSizeInterface $dirSizeCalculator
+     * @return FileSystem
+     */
+    public function setDirSizeCalculator(FsDirSizeInterface $dirSizeCalculator)
+    {
+        $this->dirSizeCalculator = $dirSizeCalculator;
+        return $this;
+    }
+
+    /**
+     * @param FsDirFileCounterInterface $dirFileCounter
+     * @return FileSystem
+     */
+    public function setDirFileCounter(FsDirFileCounterInterface $dirFileCounter)
+    {
+        $this->dirFileCounter = $dirFileCounter;
+        return $this;
+    }
+
+    /**
+     * @param FsDirListInterface $dirListHelper
+     * @return FileSystem
+     */
+    public function setDirListHelper(FsDirListInterface $dirListHelper)
+    {
+        $this->dirListHelper = $dirListHelper;
+        return $this;
+    }
+
+    /**
+     * @param FsDirFileListInterface $dirFileListHelper
+     * @return FileSystem
+     */
+    public function setDirFileListHelper(FsDirFileListInterface $dirFileListHelper)
+    {
+        $this->dirFileListHelper = $dirFileListHelper;
+        return $this;
+    }
+
+    /**
+     * @param FsDirCounterInterface $dirCounter
+     * @return FileSystem
+     */
+    public function setDirCounter(FsDirCounterInterface $dirCounter)
+    {
+        $this->dirCounter = $dirCounter;
+        return $this;
+    }
 
     /**
      * @param FileInterface $file
@@ -130,18 +206,14 @@ class FileSystem implements FileSystemInterface
      */
     public function createFile(FileInterface $file, DirectoryInterface $parent): FileInterface
     {
-        $filePath = $parent->getPath() . '/' . $parent->getName() . '/' . $file->getName();
-
-        $fileInfo = $this->fileCreator->create($filePath);
-
-        $creationDate = (new \DateTime())
-            ->setTimestamp($fileInfo->getMTime());
-
+        $fileInfo = $this->fileCreator->create($file, $parent);
         return $file
             ->setParentDirectory($parent)
             ->setSize($fileInfo->getSize())
-            ->setCreatedTime($creationDate)
-            ->setModifiedTime($creationDate);
+            ->setCreatedTime((new \DateTime())
+                ->setTimestamp($fileInfo->getMTime()))
+            ->setModifiedTime((new \DateTime())
+                ->setTimestamp($fileInfo->getMTime()));
     }
 
     /**
@@ -165,11 +237,7 @@ class FileSystem implements FileSystemInterface
      */
     public function renameFile(FileInterface $file, $newName): FileInterface
     {
-        $oldPathName = $file->getPath() . '/' . $file->getName();
-        $newPathName = $file->getPath() . '/' . $newName;
-
-        $this->fileRenamer->rename($oldPathName, $newPathName);
-
+        $this->fileRenamer->rename($file, $newName);
         $file->setName($newName);
         return $file;
     }
@@ -181,7 +249,7 @@ class FileSystem implements FileSystemInterface
      */
     public function deleteFile(FileInterface $file): bool
     {
-        return $this->fileDeleter->delete($file->getPath() . '/' . $file->getName());
+        return $this->fileDeleter->delete($file);
     }
 
     /**
@@ -191,10 +259,7 @@ class FileSystem implements FileSystemInterface
      */
     public function createRootDirectory(DirectoryInterface $directory): DirectoryInterface
     {
-        $dirPath = $directory->getPath() . '/' . $directory->getName();
-
-        $this->dirCreator->create($dirPath, 0777);
-
+        $this->dirCreator->create($directory);
         return $directory;
     }
 
@@ -206,11 +271,7 @@ class FileSystem implements FileSystemInterface
      */
     public function createDirectory(DirectoryInterface $directory, DirectoryInterface $parent): DirectoryInterface
     {
-        $parentPath = $parent->getPath() . '/' . $parent->getName();
-        $dirPath = $parentPath . '/' . $directory->getName();
-
-        $this->dirCreator->create($dirPath);
-
+        $this->dirCreator->create($directory, $parent);
         return $directory;
     }
 
@@ -221,9 +282,7 @@ class FileSystem implements FileSystemInterface
      */
     public function deleteDirectory(DirectoryInterface $directory): bool
     {
-        $dir = $directory->getPath() . '/' . $directory->getName();
-
-        return $this->dirDeleter->delete($dir);
+        return $this->dirDeleter->delete($directory);
     }
 
     /**
@@ -234,13 +293,8 @@ class FileSystem implements FileSystemInterface
      */
     public function renameDirectory(DirectoryInterface $directory, $newName): DirectoryInterface
     {
-        $old = $directory->getPath() . '/' . $directory->getName();
-        $new = $directory->getPath() . '/' . $newName;
-
-        $this->dirRenamer->rename($old, $new);
-
+        $this->fileRenamer->rename($directory, $newName);
         $directory->setName($newName);
-
         return $directory;
     }
 
@@ -251,17 +305,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectoryCount(DirectoryInterface $directory): int
     {
-        $dirCount = 0;
-
-        $fn = function ($item) use (&$dirCount, $directory) {
-            if ($item->isDir() && ! $item->isDot()) {
-                $dirCount++;
-            }
-        };
-
-        $this->runDirectory($directory, $fn);
-
-        return $dirCount;
+        return $this->dirCounter->calculate($directory);
     }
 
     /**
@@ -271,17 +315,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getFileCount(DirectoryInterface $directory): int
     {
-        $fileCount = 0;
-
-        $fn = function ($item) use (&$fileCount, $directory) {
-            if ($item->isFile()) {
-                $fileCount++;
-            }
-        };
-
-        $this->runDirectory($directory, $fn);
-
-        return $fileCount;
+        return $this->dirFileCounter->calculate($directory);
     }
 
     /**
@@ -291,15 +325,8 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectorySize(DirectoryInterface $directory): int
     {
-        $size = 0;
         $path = $directory->getPath() . '/' . $directory->getName();
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path));
-        foreach ($iterator as $info) {
-            if ($info->isFile()) {
-                $size += $info->getSize();
-            }
-        }
-        return $size;
+        return $this->dirSizeCalculator->calculate($path);
     }
 
     /**
@@ -309,20 +336,7 @@ class FileSystem implements FileSystemInterface
      */
     public function getDirectories(DirectoryInterface $directory): array
     {
-        $dirs = [];
-
-        $fn = function ($item) use (&$dirs, $directory) {
-            if ($item->isDir() && ! $item->isDot()) {
-                $dirs[] = DirectoryFactory::create()
-                    ->setName($item->getFilename())
-                    ->setPath($item->getPath())
-                    ->setCreatedTime((new \DateTime())->setTimestamp($item->getCTime()));
-            }
-        };
-
-        $this->runDirectory($directory, $fn);
-
-        return $dirs;
+        return $this->dirListHelper->list($directory);
     }
 
     /**
@@ -332,30 +346,6 @@ class FileSystem implements FileSystemInterface
      */
     public function getFiles(DirectoryInterface $directory): array
     {
-        $files = [];
-
-        $fn = function ($item) use (&$files, $directory) {
-            if ( ! $item->isDir() && ! $item->isDot()) {
-                $files[] = FileFactory::create()
-                    ->setParentDirectory($directory)
-                    ->setName($item->getFilename())
-                    ->setSize($item->getSize())
-                    ->setCreatedTime((new \DateTime())->setTimestamp($item->getCTime()));
-            }
-        };
-
-        $this->runDirectory($directory, $fn);
-
-        return $files;
+        return $this->dirFileListHelper->list($directory);
     }
-
-    protected function runDirectory($directory, $fn)
-    {
-        $directoryIterator = new \DirectoryIterator($directory->getPath() . '/' . $directory->getName());
-
-        foreach ($directoryIterator as $item) {
-            $fn($item);
-        }
-    }
-
 }

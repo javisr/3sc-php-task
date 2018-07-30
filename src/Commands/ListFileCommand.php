@@ -11,7 +11,7 @@ use Tsc\CatStorageSystem\Factories\FileFactory;
 use Tsc\CatStorageSystem\Factories\FSFactory;
 use Symfony\Component\Console\Input\InputArgument;
 
-class ListFileCommand extends Command
+class ListFileCommand extends AbstractCommand
 {
 
     protected function configure()
@@ -24,17 +24,17 @@ class ListFileCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $dirName = $input->getArgument('dir_name') ?   $input->getArgument('dir_name') : '';
-        $root = DirectoryFactory::create()->setPath('./images')->setName($dirName);
+        $dirName = $input->getArgument('dir_name') ? $input->getArgument('dir_name') : '';
+        $dir = DirectoryFactory::create()
+            ->setPath($this->root->getPath() . '/' . $this->root->getName())
+            ->setName($dirName);
 
-        $fs = FSFactory::create();
-
-        $files = $fs->getFiles($root);
+        $files = $this->fs->getFiles($dir);
         foreach ($files as $file) {
             $output->writeln($file->getName());
         }
 
-        if($fs->getFileCount($root) === 0){
+        if ($this->fs->getFileCount($dir) === 0) {
             $output->writeln('Not files found inside ' . $dirName);
         }
     }

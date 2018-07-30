@@ -2,7 +2,14 @@
 
 namespace Tsc\CatStorageSystem\FSUtils\Contracts;
 
+use Tsc\CatStorageSystem\Contracts\DirectoryInterface;
+use Tsc\CatStorageSystem\Contracts\FileInterface;
+
 interface FsDeleteInterface
 {
-    public function delete(string $filePath): bool;
+    /**
+     * @param FileInterface|DirectoryInterface $file
+     * @return bool
+     */
+    public function delete($file): bool;
 }

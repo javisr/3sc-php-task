@@ -5,5 +5,5 @@ use \SplFileInfo;
 
 interface FsCreatorInterface
 {
-    public function create(string $filePath): SplFileInfo;
+    public function create($directory): SplFileInfo;
 }

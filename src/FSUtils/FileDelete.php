@@ -6,8 +6,9 @@ use Tsc\CatStorageSystem\FSUtils\Contracts\FsDeleteInterface;
 
 class FileDelete implements FsDeleteInterface
 {
-    public function delete(string $filePath): bool
+    public function delete($file): bool
     {
+        $filePath = $file->getPath() . '/' . $file->getName();
         return unlink($filePath);
     }
 }
