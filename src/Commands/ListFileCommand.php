@@ -30,7 +30,7 @@ class ListFileCommand extends AbstractCommand
             ->setName($dirName);
 
         $files = [];
-        
+
         try {
             $files = $this->fs->getFiles($dir);
         } catch (\Exception $e) {

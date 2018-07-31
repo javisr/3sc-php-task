@@ -2,37 +2,41 @@
 
 namespace Tsc\CatStorageSystem;
 
+use Mockery;
 use PHPUnit\Framework\TestCase;
+use SplFileInfo;
 use Tsc\CatStorageSystem\Factories\DirectoryFactory;
 use Tsc\CatStorageSystem\Factories\FileFactory;
+use Tsc\CatStorageSystem\FSUtils\Contracts\FsDriverInterface;
 use Tsc\CatStorageSystem\FSUtils\OSXDriver;
 
 
 class FileSystemTest extends TestCase
 {
 
-    /**
-     * @var FileSystem
-     */
-    private $fs;
+//    /**
+//     * @var FsDriverInterface
+//     */
+    private $mock;
 
     /**
      * @var string
      */
     private $testFolder = './test_folder';
 
+
     protected function setUp()
     {
         parent::setUp();
-        $this->fs = (new FileSystem(new OSXDriver()));
 
-        $this->createTmpFolder();
+        $this->mock = Mockery::mock(FsDriverInterface::class);
     }
 
 
     /** @test */
-    public function it_can_create_a_file()
+    public function create_file_fn_returns_same_file_instance_filled()
     {
+
         $file = FileFactory::create()
             ->setName('new-cat.gif');
 
@@ -40,244 +44,35 @@ class FileSystemTest extends TestCase
             ->setPath($this->testFolder)
             ->setName('tmp');
 
-        $this->assertFileNotExists($dir->getPath() . '/' . $dir->getName() . '/' . $file->getName());
-        $this->assertSame($file, $this->fs->createFile($file, $dir));
-        $this->assertFileExists($dir->getPath() . '/' . $dir->getName() . '/' . $file->getName());
+        $time = time();
+        $splFileInfoMock = Mockery::mock(SplFileInfo::class);
+        $splFileInfoMock->shouldReceive('getSize')->once()->andReturn(33);
+        $splFileInfoMock->shouldReceive('getMTime')->twice()->andReturn($time);
 
-    }
+        $this->mock->shouldReceive('createFile')->with($file, $dir)
+            ->andReturn($splFileInfoMock);
 
-    /** @test */
-    public function it_can_update_a_file()
-    {
-        $file = $this->fs->createFile(
-            FileFactory::create()
-                ->setName('new-cat.gif'),
-            DirectoryFactory::create()
-                ->setPath($this->testFolder)
-                ->setName('tmp'));
+        $fs = new FileSystem($this->mock);
 
-        $newDate = (new \DateTime())->add(new \DateInterval('P10D'));
-        $file->setModifiedTime($newDate);
-        $this->fs->updateFile($file);
-
-        $fileInfo = new \SplFileInfo($file->getPath() . '/' . $file->getName());
-
-        $this->assertEquals($newDate->getTimestamp(), $fileInfo->getMTime());
-    }
-
-    /** @test */
-    public function it_can_rename_a_file()
-    {
-        $file = $this->fs->createFile(
-            FileFactory::create()
-                ->setName('new-cat.gif'),
-            DirectoryFactory::create()
-                ->setPath($this->testFolder)
-                ->setName('tmp'));
-
-        $this->fs->renameFile($file, 'renamed-cat.gif');
-
-        $this->assertFileNotExists($file->getPath() . '/' . 'new-cat.gif');
-        $this->assertFileExists($file->getPath() . '/' . 'renamed-cat.gif');
+        $returned = $fs->createFile($file, $dir);
+        $this->assertSame($file, $returned);
+        $this->assertEquals((new \DateTime())->setTimestamp($time), $returned->getCreatedTime());
+        $this->assertEquals(33, $returned->getSize());
+        $this->assertEquals((new \DateTime())->setTimestamp($time), $returned->getModifiedTime());
     }
 
 
     /** @test */
-    public function it_can_delete_a_file()
+    public function update_file_fn_returns_same_file_instance()
     {
-        $file = $this->fs->createFile(
-            FileFactory::create()
-                ->setName('new-cat.gif'),
-            DirectoryFactory::create()
-                ->setPath($this->testFolder)
-                ->setName('tmp'));
+        $file = FileFactory::create()
+            ->setName('new-cat.gif');
+        $this->mock->shouldReceive('updateFile')->with($file);
 
-        $this->fs->deleteFile($file);
+        $fs = new FileSystem($this->mock);
 
-        $this->assertFileNotExists($file->getPath() . '/' . 'new-cat.gif');
-    }
+        $returned = $fs->updateFile($file);
 
-
-    /** @test */
-    public function it_can_create_a_root_directory()
-    {
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $this->assertDirectoryNotExists($this->testFolder . '/root');
-        $this->fs->createRootDirectory($root);
-        $this->assertDirectoryExists($this->testFolder . '/root');
-        $this->assertDirectoryIsWritable($this->testFolder . '/root');
-    }
-
-
-    /** @test */
-    public function it_can_create_a_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $child = DirectoryFactory::create()
-            ->setName('child');
-
-        $this->assertDirectoryNotExists($this->testFolder . '/root/child');
-        $this->fs->createDirectory($child, $root);
-        $this->assertDirectoryExists($this->testFolder . '/root/child');
-        $this->assertDirectoryIsWritable($this->testFolder . '/root/child');
-
-    }
-
-
-    /** @test */
-    public function it_can_delete_a_directory()
-    {
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('removable');
-        $this->fs->createRootDirectory($root);
-        $this->assertDirectoryExists($this->testFolder . '/removable');
-
-        $this->fs->deleteDirectory($root);
-        $this->assertDirectoryNotExists($this->testFolder . '/removable');
-    }
-
-
-    /** @test */
-    public function it_can_rename_a_directory()
-    {
-        $dir = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('my_dir');
-        $this->fs->createRootDirectory($dir);
-
-        $this->assertDirectoryExists($this->testFolder . '/my_dir');
-        $this->assertDirectoryNotExists($this->testFolder . '/new_name');
-
-        $this->fs->renameDirectory($dir, 'new_name');
-
-        $this->assertDirectoryNotExists($this->testFolder . '/my_dir');
-        $this->assertDirectoryExists($this->testFolder . '/new_name');
-
-    }
-
-    /** @test */
-    public function it_returns_count_of_directories_inside_a_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        mkdir($this->testFolder . '/root/dir_a');
-        mkdir($this->testFolder . '/root/dir_b');
-        mkdir($this->testFolder . '/root/dir_c');
-        touch($this->testFolder . '/root/fileA');
-
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $this->assertEquals(3, $this->fs->getDirectoryCount($root));
-    }
-
-    /** @test */
-    public function it_returns_files_count_inside_a_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        mkdir($this->testFolder . '/root/dir_a');
-        mkdir($this->testFolder . '/root/dir_b');
-        mkdir($this->testFolder . '/root/dir_c');
-        touch($this->testFolder . '/root/fileA');
-        touch($this->testFolder . '/root/fileB');
-
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $this->assertEquals(2, $this->fs->getFileCount($root));
-    }
-
-    /** @test */
-    public function it_returns_the_size_of_a_complete_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        $size = (new \SplFileObject($this->testFolder . '/root/fileA.txt', 'w'))->fwrite('aaa');
-        mkdir($this->testFolder . '/root/dir_a');
-        $size += (new \SplFileObject($this->testFolder . '/root/dir_a/fileB.txt', 'w'))->fwrite('aaa');
-        mkdir($this->testFolder . '/root/dir_a/dir_b');
-        $size += (new \SplFileObject($this->testFolder . '/root/dir_a/dir_b/fileC.txt', 'w'))->fwrite('aaa');
-
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $this->assertEquals($size, $this->fs->getDirectorySize($root));
-    }
-
-    /** @test */
-    public function it_returns_directories_inside_a_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        mkdir($this->testFolder . '/root/dir_a');
-        mkdir($this->testFolder . '/root/dir_b');
-        mkdir($this->testFolder . '/root/dir_c');
-        mkdir($this->testFolder . '/root/dir_c/other_dir');
-        touch($this->testFolder . '/root/fileA');
-
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $directories = $this->fs->getDirectories($root);
-        $this->assertEquals(3, count($directories));
-    }
-
-    /** @test */
-    public function it_returns_files_inside_a_directory()
-    {
-        mkdir($this->testFolder . '/root');
-        mkdir($this->testFolder . '/root/dir_a');
-        mkdir($this->testFolder . '/root/dir_b');
-        mkdir($this->testFolder . '/root/dir_c');
-        touch($this->testFolder . '/root/fileA');
-        touch($this->testFolder . '/root/fileB');
-
-
-        $root = DirectoryFactory::create()
-            ->setPath($this->testFolder)
-            ->setName('root');
-
-        $files = $this->fs->getFiles($root);
-        $this->assertEquals(2, count($files));
-    }
-
-
-    protected function tearDown()
-    {
-        $this->deleteDirectory($this->testFolder . '/root');
-
-        $this->deleteTmpFolder();
-    }
-
-
-    private function createTmpFolder()
-    {
-        if (is_dir($this->testFolder)) {
-            $this->deleteDirectory($this->testFolder);
-        }
-        mkdir($this->testFolder);
-        mkdir($this->testFolder . '/tmp');
-    }
-
-    private function deleteTmpFolder()
-    {
-        if (is_dir($this->testFolder)) {
-            $this->deleteDirectory($this->testFolder);
-        }
-    }
-
-    private function deleteDirectory($dir)
-    {
-        system('rm -rf ' . escapeshellarg($dir), $retval);
-        return $retval == 0;
+        $this->assertSame($file, $returned);
     }
 }

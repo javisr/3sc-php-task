@@ -63,12 +63,12 @@ class OSXDriver implements FsDriverInterface
      */
     public function createFile(FileInterface $file, DirectoryInterface $parent): SplFileInfo
     {
-        $filePath = $parent->getPath() . '/' . $parent->getName() . '/' . $file->getName();
+        $parent =  $parent->getPath() . '/' . $parent->getName();
+        $filePath =  $parent . '/' . $file->getName();
 
-        if ( ! touch($filePath)) {
+        if ( !is_dir($parent) || ! touch($filePath)) {
             throw new \Exception('There was an error creating the file');
         }
-
         return new SplFileInfo($filePath);
     }
 
@@ -223,7 +223,7 @@ class OSXDriver implements FsDriverInterface
     {
         $filePath = $file->getPath() . '/' . $file->getName();
 
-        if ( ! touch($filePath)) {
+        if ( ! touch($filePath, $file->getModifiedTime()->getTimestamp())) {
             throw new \Exception('There was an error updating the file');
         }
 
