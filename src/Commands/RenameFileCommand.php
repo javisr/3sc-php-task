@@ -34,8 +34,11 @@ class RenameFileCommand extends AbstractCommand
             ->setParentDirectory($this->root)
             ->setName($oldName);
 
-        $this->fs->renameFile($file, $newName);
-
-        $output->writeln($oldName .' is now renamed to ' . $file->getName());
+        try {
+            $this->fs->renameFile($file, $newName);
+            $output->writeln('<info>' . $oldName . ' is now renamed to ' . $file->getName() . '</info>');
+        } catch (\Exception $e) {
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+        }
     }
 }

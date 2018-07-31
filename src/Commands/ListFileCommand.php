@@ -29,7 +29,14 @@ class ListFileCommand extends AbstractCommand
             ->setPath($this->root->getPath() . '/' . $this->root->getName())
             ->setName($dirName);
 
-        $files = $this->fs->getFiles($dir);
+        $files = [];
+        
+        try {
+            $files = $this->fs->getFiles($dir);
+        } catch (\Exception $e) {
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+        }
+
         foreach ($files as $file) {
             $output->writeln($file->getName());
         }
@@ -37,5 +44,8 @@ class ListFileCommand extends AbstractCommand
         if ($this->fs->getFileCount($dir) === 0) {
             $output->writeln('Not files found inside ' . $dirName);
         }
+
     }
+
+
 }
